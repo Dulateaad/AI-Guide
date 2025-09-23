@@ -10,7 +10,7 @@ def start(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     webapp_btn = KeyboardButton(
         text="🌍 Открыть AI-Гид",
-        web_app=WebAppInfo(url="https://studio--alatau-guide.us-central1.hosted.app")
+        web_app=WebAppInfo(url="https://studio--studio-8899645624-9001d.us-central1.hosted.app")
     )
     markup.add(webapp_btn)
     bot.send_message(message.chat.id, "Привет! Я AI-гид. Жми кнопку ниже 👇", reply_markup=markup)
