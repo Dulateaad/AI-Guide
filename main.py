@@ -13,6 +13,12 @@ def start(message):
         web_app=WebAppInfo(url="https://studio--studio-8899645624-9001d.us-central1.hosted.app")
     )
     markup.add(webapp_btn)
-    bot.send_message(message.chat.id, "Привет! Я AI-гид. Жми кнопку ниже 👇", reply_markup=markup)
+    bot.send_message(message.chat.id, "
+Сәлем! 👋
+
+Я — Baiterek Guide, ваш персональный гид по Астане.
+Составлю маршруты, покажу лучшие места и расскажу интересные факты.
+
+Жмите кнопку ниже и начнём путешествие! 🚀", reply_markup=markup)
 
 bot.polling()
