@@ -1,29 +1,66 @@
-import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+import logging
+from telegram import (
+    Update,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    WebAppInfo
+)
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    CallbackContext
+)
 
-TOKEN = "ВАШ_НОВЫЙ_TOKEN"   # после перевыпуска
+# ── Вставьте сюда ваш токен ──────────────────────────────
+TOKEN = "8261494879:AAGGHa-BiI03J1UGPntKvZ2i2lmNOM3fu8Q"
+# ── URL вашего мини-приложения ───────────────────────────
 WEBAPP_URL = "https://studio--studio-8899645624-9001d.us-central1.hosted.app"
 
-bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
+# Логирование (удобно на Render)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    kb = InlineKeyboardMarkup()
-    kb.add(
-        InlineKeyboardButton(
-            text="🌍 Открыть AI-Гид",
+
+def start(update: Update, context: CallbackContext) -> None:
+    """Отправляем приветствие и кнопку для открытия мини-аппки"""
+    keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(
+            text="🚀 Открыть мини-приложение",
             web_app=WebAppInfo(url=WEBAPP_URL)
+        )]]
+    )
+    update.message.reply_text(
+        "Привет! Нажми кнопку ниже, чтобы открыть мини-приложение:",
+        reply_markup=keyboard
+    )
+
+
+def main() -> None:
+    """Точка входа"""
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+
+    # Для Render: PORT приходит из переменной окружения
+    import os
+    port = int(os.environ.get("PORT", "8443"))
+    # Запускаем webhook (или можете оставить polling для локального теста)
+    if os.environ.get("RENDER"):
+        updater.start_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path=TOKEN,
+            webhook_url=f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/{TOKEN}"
         )
-    )
-    bot.send_message(
-        message.chat.id,
-        """Сәлем! 👋
+    else:
+        updater.start_polling()
 
-Я — Baiterek Guide, ваш персональный гид по Астане.
-Составлю маршруты, покажу лучшие места и расскажу интересные факты.
+    updater.idle()
 
-Жмите кнопку ниже и начнём путешествие! 🚀""",
-        reply_markup=kb
-    )
 
-bot.polling(none_stop=True, skip_pending=True)
+if __name__ == "__main__":
+    main()
