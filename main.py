@@ -1,54 +1,46 @@
-import logging
-import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes
+import telebot
+from telebot import types
 
-# ✅ Читаем токен из окружения (для теста можно временно вписать строкой)
-TOKEN = os.getenv("BOT_TOKEN", "8261494879:AAGGHa-BiI03J1UGPntKvZ2i2lmNOM3fu8Q")
+# --- Ваш реальный токен ---
+TOKEN = "8261494879:AAGGHa-BiI03J1UGPntKvZ2i2lmNOM3fu8Q"
 
-# URL твоего мини-приложения
+# --- URL мини-приложения ---
 WEBAPP_URL = "https://studio--studio-8899645624-9001d.us-central1.hosted.app"
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Команда /start – отправляем кнопку для открытия мини-приложения"""
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton(
-            text="🚀 Открыть мини-приложение",
-            web_app=WebAppInfo(url=WEBAPP_URL)
-        )]
-    ])
-    await update.message.reply_text(
+@bot.message_handler(commands=["start"])
+def start(message: types.Message):
+    """
+    Отправляем приветствие и кнопку для открытия мини-приложения.
+    """
+    markup = types.InlineKeyboardMarkup()
+    btn = types.InlineKeyboardButton(
+        text="🚀 Открыть мини-приложение",
+        web_app=types.WebAppInfo(url=WEBAPP_URL)
+    )
+    markup.add(btn)
+
+    bot.send_message(
+        message.chat.id,
         "Привет! Нажми кнопку ниже, чтобы открыть мини-приложение:",
-        reply_markup=keyboard
+        reply_markup=markup
     )
 
 
-def main() -> None:
-    app = Application.builder().token(TOKEN).build()
-
-    # Регистрируем обработчик команды /start
-    app.add_handler(CommandHandler("start", start))
-
-    # Render обычно передает порт в переменной PORT
+if __name__ == "__main__":
+    # Для локального запуска — обычный polling.
+    # На Render можно выставить переменную окружения RENDER, чтобы при необходимости
+    # переключиться на webhook.
+    import os
     port = int(os.environ.get("PORT", "8443"))
 
-    if os.environ.get("RENDER"):   # если деплой на Render
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=port,
-            url_path=TOKEN,
-            webhook_url=f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/{TOKEN}"
-        )
-    else:                          # локальный запуск
-        app.run_polling()
+    if os.environ.get("RENDER"):
+        # --- Пример простого webhook ---
+        WEBHOOK_URL = f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}/{TOKEN}"
+        bot.remove_webhook()
+        bot.set_webhook(url=WEBHOOK_URL)
+    else:
+        bot.infinity_polling(skip_pending=True)
 
-
-if __name__ == "__main__":
-    main()
