@@ -1,24 +1,29 @@
 import telebot
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
-TOKEN = "8434444079:AAGxd-vjy4dqLiCl84LKSqSbEaEQDyJxH10"
-bot = telebot.TeleBot(TOKEN)
+TOKEN = "ВАШ_НОВЫЙ_TOKEN"   # после перевыпуска
+WEBAPP_URL = "https://studio--studio-8899645624-9001d.us-central1.hosted.app"
 
-# Главное меню с кнопкой "Открыть AI-Гид"
+bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
+
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    webapp_btn = KeyboardButton(
-        text="🌍 Открыть AI-Гид",
-        web_app=WebAppInfo(url="https://studio--studio-8899645624-9001d.us-central1.hosted.app")
+    kb = InlineKeyboardMarkup()
+    kb.add(
+        InlineKeyboardButton(
+            text="🌍 Открыть AI-Гид",
+            web_app=WebAppInfo(url=WEBAPP_URL)
+        )
     )
-    markup.add(webapp_btn)
-    bot.send_message(message.chat.id, "
-Сәлем! 👋
+    bot.send_message(
+        message.chat.id,
+        """Сәлем! 👋
 
 Я — Baiterek Guide, ваш персональный гид по Астане.
 Составлю маршруты, покажу лучшие места и расскажу интересные факты.
 
-Жмите кнопку ниже и начнём путешествие! 🚀", reply_markup=markup)
+Жмите кнопку ниже и начнём путешествие! 🚀""",
+        reply_markup=kb
+    )
 
-bot.polling()
+bot.polling(none_stop=True, skip_pending=True)
