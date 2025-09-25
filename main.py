@@ -3,7 +3,8 @@ import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = "8261494879:AAGGHa-BiI03J1UGPntKvZ2i2lmNOM3fu8Q"
+
 WEBAPP_URL = "https://studio--studio-8899645624-9001d.us-central1.hosted.app"
 
 logging.basicConfig(
